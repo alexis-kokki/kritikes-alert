@@ -9,9 +9,10 @@ import os
 # === Ρυθμίσεις ===
 URL = "https://www.kritikes-aggelies.gr/category/katoikies/polh-hrakleiou?type=4&price=200-600&area=50"
 
-EMAIL_SENDER = "alekos.k94@gmail.com"
-EMAIL_PASSWORD = "fpkwmntyhxzouyil"
-EMAIL_RECEIVER = "alexis-kokkinakis@hotmail.com"
+# Διαβάζουμε από GitHub Secrets
+EMAIL_SENDER = os.getenv("EMAIL_SENDER", "")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
+EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER", "")
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
@@ -21,17 +22,24 @@ SEEN_FILE = "seen_ids.json"
 # === Φόρτωση προηγούμενων IDs ===
 def load_seen_ids():
     if os.path.exists(SEEN_FILE):
-        with open(SEEN_FILE, "r") as f:
-            return set(json.load(f))
+        try:
+            with open(SEEN_FILE, "r", encoding="utf-8") as f:
+                return set(json.load(f))
+        except Exception:
+            return set()
     return set()
 
 def save_seen_ids(seen_ids):
-    with open(SEEN_FILE, "w") as f:
-        json.dump(list(seen_ids), f)
+    with open(SEEN_FILE, "w", encoding="utf-8") as f:
+        json.dump(list(seen_ids), f, ensure_ascii=False)
 
 seen_ids = load_seen_ids()
 
 def send_email(subject, body):
+    if not EMAIL_SENDER or not EMAIL_PASSWORD or not EMAIL_RECEIVER:
+        print("❌ Δεν έχουν οριστεί σωστά τα email secrets.")
+        return
+
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = subject
     msg["From"] = EMAIL_SENDER
@@ -80,9 +88,7 @@ def check_for_new_ads():
         send_email("🔔 Νέα Αγγελία", message)
         print(f"📬 Εστάλη: {title}")
 
-    # Αποθηκεύουμε τα νέα IDs
     save_seen_ids(seen_ids)
 
 if __name__ == "__main__":
-    # Στο GitHub Actions τρέχουμε μόνο μία φορά
     check_for_new_ads()
