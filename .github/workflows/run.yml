@@ -1,14 +1,13 @@
-name: Run kritikes-alert
+name: Run script every 5 minutes
 
 on:
   schedule:
-    - cron: "*/10* * * *"   # Τρέχει κάθε 10 λεπτά
-  workflow_dispatch:        # Δυνατότητα να το τρέχεις και χειροκίνητα
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -16,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.x'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
