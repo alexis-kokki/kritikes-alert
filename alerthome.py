@@ -12,11 +12,16 @@ URL = "https://www.kritikes-aggelies.gr/category/katoikies/polh-hrakleiou?type=4
 # Διαβάζουμε από GitHub Secrets
 EMAIL_SENDER = os.getenv("EMAIL_SENDER", "")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
-# Μπορούμε να έχουμε πολλούς παραλήπτες χωρισμένους με κόμμα
-EMAIL_RECEIVERS = [
-    "alexis-kokkinakis@hotmail.com",
-    "mylonathekli@gmail.com"
-]
+# Διαβάζουμε EMAIL_RECEIVERS από τα GitHub Secrets
+EMAIL_RECEIVERS_STR = os.getenv("EMAIL_RECEIVERS", "")
+if EMAIL_RECEIVERS_STR:
+    EMAIL_RECEIVERS = [email.strip() for email in EMAIL_RECEIVERS_STR.split(",")]
+else:
+    # Fallback αν δεν υπάρχουν secrets
+    EMAIL_RECEIVERS = [
+        "alexis-kokkinakis@hotmail.com",
+        "mylonathekli@gmail.com"
+    ]
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
