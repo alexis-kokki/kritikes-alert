@@ -12,7 +12,11 @@ URL = "https://www.kritikes-aggelies.gr/category/katoikies/polh-hrakleiou?type=4
 # Διαβάζουμε από GitHub Secrets
 EMAIL_SENDER = os.getenv("EMAIL_SENDER", "")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
-EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER", "")
+# Μπορούμε να έχουμε πολλούς παραλήπτες χωρισμένους με κόμμα
+EMAIL_RECEIVERS = [
+    "alexis-kokkinakis@hotmail.com",
+    "mylonathekli@gmail.com"
+]
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
@@ -36,21 +40,21 @@ def save_seen_ids(seen_ids):
 seen_ids = load_seen_ids()
 
 def send_email(subject, body):
-    if not EMAIL_SENDER or not EMAIL_PASSWORD or not EMAIL_RECEIVER:
+    if not EMAIL_SENDER or not EMAIL_PASSWORD or not EMAIL_RECEIVERS:
         print("❌ Δεν έχουν οριστεί σωστά τα email secrets.")
         return
 
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = subject
     msg["From"] = EMAIL_SENDER
-    msg["To"] = EMAIL_RECEIVER
+    msg["To"] = ", ".join(EMAIL_RECEIVERS)  # Όλοι οι παραλήπτες
 
     try:
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, msg.as_string())
-        print("✅ Εστάλη email")
+            server.sendmail(EMAIL_SENDER, EMAIL_RECEIVERS, msg.as_string())
+        print("✅ Εστάλη email σε:", EMAIL_RECEIVERS)
     except Exception as e:
         print(f"❌ Σφάλμα κατά την αποστολή email: {e}")
 
