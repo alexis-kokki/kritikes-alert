@@ -96,3 +96,4 @@ def check_for_new_ads():
 
 if __name__ == "__main__":
     check_for_new_ads()
+
